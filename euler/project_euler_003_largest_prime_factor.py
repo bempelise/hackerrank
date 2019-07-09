@@ -9,6 +9,8 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 What is the largest prime factor of a given number N
 """
 
+import math
+
 
 def gcd(a, b):
     while a % b != 0:
@@ -16,38 +18,52 @@ def gcd(a, b):
     return b
 
 
+def is_perfect_square(number):
+    """ Returns true of the given number is a perfect square """
+    sqrt = math.sqrt(number)
+    return not sqrt - math.floor(sqrt) > 0.0
+
+
+def g(x, number):
+    """ Polynomial """
+    return x*x + 1 % number
+
 def get_factor(number):
-
-    x_fixed = 2
-    cycle_size = 2
     x = 2
-    factor = 1
+    y = 2
+    d = 1
 
-    while factor == 1:
-        count = 1
-        while count <= cycle_size and factor <= 1:
-            x = (x*x + 1) % number
-            factor = gcd(x - x_fixed, number)
-            count += 1
-        cycle_size *= 2
-        x_fixed = x
-    return factor
+    while d == 1:
+        x = g(x, number)
+        y = g(x, number)
+        d = gcd(abs(x - y), number)
 
+    if d == number:
+        return None
+    else:
+        return d
 
 def largest_prime_factor(number):
     if number in [1, 0]:
         return None
 
-    while number % 2 == 0:
-        factor = 2
-        number /= 2
+    # Rho's algorithm does not work with squares
+    while is_perfect_square(number):
+        number = number / int(math.sqrt(number))
 
-    while int(number) > 1:
+        max_factor = None
+    sqrt = math.sqrt(number)
+    for i in range(int(sqrt)):
         factor = get_factor(number)
-        while number % factor == 0:
-            number /= factor
-    return int(factor)
+        if max_factor is None or factor > max_factor:
+            max_factor = factor
+    return max_factor
 
+
+def print_factors(number):
+    sqrt = math.sqrt(number)
+    for i in range(int(sqrt)):
+        print("{}: {}".format(i, get_factor(number)))
 
 def get_primes(limit):
     primes = []
@@ -58,17 +74,21 @@ def get_primes(limit):
         current[:] = [num for num in current if num % next_prime != 0]
     return primes
 
+
 def largest_prime_factor_old(number):
     primes = get_primes(number)
     for num in reversed(primes):
         if number % num == 0:
             return num
 
+
 def main():
     """ main """
     number = 13195
-    number = 1
-    number = 25
+    number = 10416
+    number = 4
+    # number = 217
+    print_factors(number)
     while (largest_prime_factor(number) == largest_prime_factor_old(number)):
         number += 1
     print(number)
