@@ -1,5 +1,5 @@
 """
-HackerRank - Project Euler 005
+HackerRank - Project Euler 006
 
 www.hackerrank.com/contests/projecteuler/challenges/euler006/problem
 https://projecteuler.net/problem=6
