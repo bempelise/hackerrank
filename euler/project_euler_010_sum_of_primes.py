@@ -42,26 +42,74 @@ class Primes():
         return len(self._primes)
 
 
-def summation_primes(primes, number):
-    """ Returns the sum of all prims below number"""
-    summation = 0
-    index = 0
-    print(primes._primes)
-    while index < primes.size() and primes.prime_at(index) <= number:
-        summation += primes.prime_at(index)
-        index += 1
-    return summation
+class CacheEntry():
+    def __init__(self, value, index):
+        self._value = value
+        self._index = index
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+
+    @property
+    def index(self):
+        return self._index
+
+    @index.setter
+    def index(self, value):
+        self._index = value
+
+
+class PrimeAdder():
+    """ Gives sum of all primes below a number. Caches old results """
+    def __init__(self, primes):
+        self.primes = primes
+        self.cache = {}
+
+    def summation(self, number):
+        if number in self.cache.keys():
+            return self.cache[number].value
+        self.primes.extend(number)
+        entry = self.load_last(number)
+        while entry.index < self.primes.size() and self.primes.prime_at(entry.index) <= number:
+            entry.value += self.primes.prime_at(entry.index)
+            entry.index += 1
+
+        self.cache[number] = entry
+        return entry.value
+
+    def load_last(self, number):
+        keys = list(self.cache.keys()).sort()
+        if not keys:
+            return CacheEntry(0, 0)
+        size = len(keys)
+        summation = 0
+        index = 0
+
+        i = size/2
+        while 0 < i < size - 1:
+            if number > keys[i]:
+                summation = self.cache[keys[i]].value
+                index = self.cache[keys[i]].index
+                i = i + (size - i)/2
+            else:
+                if summation > 0:
+                    break
+                i = i/2
+        return CacheEntry(summation, index)
 
 def main():
     """ main """
     primes = Primes(10)
+    adder = PrimeAdder(primes)
     number = 5
-    primes.extend(number)
-    print(summation_primes(primes, number))
+    print(adder.summation(number))
     number = 10
-    primes.extend(number)
-    print(summation_primes(primes, number))
+    print(adder.summation(number))
 
 
 if __name__ == "__main__":
