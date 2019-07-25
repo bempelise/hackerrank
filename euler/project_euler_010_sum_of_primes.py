@@ -8,111 +8,74 @@ The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
 
 Find the sum of all the primes not greater than given N.
 """
+import time
 
 
 class Primes():
     """ Class indexing primes """
     def __init__(self, limit):
-        self._limit = 2
-        self._primes = []
-        self.extend(limit)
+        self._sums = []
+        self._bools = []
+        self.sieve(limit)
 
-    def prime_at(self, index):
-        """ Returns (N+1)th prime """
-        return self._primes[index]
+    def summation(self, limit):
+        """ Returns the sum of primes up to limit """
+        if limit >= len(self._sums):
+            self.sieve(limit)
+        return self._sums[limit - 1]
 
-    def extend(self, limit):
-        """ Get all primes below limit """
-        limit += 1
-        if self._limit >= limit:
-            return
-
-        current = list(range(self._limit, limit + 1))
-        for prime in self._primes:
-            current[:] = [num for num in current if num % prime != 0]
-
-        while current:
-            next_prime = current[0]
-            self._primes.append(next_prime)
-            current[:] = [num for num in current if num % next_prime != 0]
-        self._limit = limit
-
-    def size(self):
-        """ Returns the size of the primes numbers held"""
-        return len(self._primes)
-
-
-class CacheEntry():
-    def __init__(self, value, index):
-        self._value = value
-        self._index = index
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-
-    @property
-    def index(self):
-        return self._index
-
-    @index.setter
-    def index(self, value):
-        self._index = value
-
-
-class PrimeAdder():
-    """ Gives sum of all primes below a number. Caches old results """
-    def __init__(self, primes):
-        self.primes = primes
-        self.cache = {}
-
-    def summation(self, number):
-        if number in self.cache.keys():
-            return self.cache[number].value
-        self.primes.extend(number)
-        entry = self.load_last(number)
-        while entry.index < self.primes.size() and self.primes.prime_at(entry.index) <= number:
-            entry.value += self.primes.prime_at(entry.index)
-            entry.index += 1
-
-        self.cache[number] = entry
-        return entry.value
-
-    def load_last(self, number):
-        keys = list(self.cache.keys()).sort()
-        if not keys:
-            return CacheEntry(0, 0)
-        size = len(keys)
-        summation = 0
-        index = 0
-
-        i = size/2
-        while 0 < i < size - 1:
-            if number > keys[i]:
-                summation = self.cache[keys[i]].value
-                index = self.cache[keys[i]].index
-                i = i + (size - i)/2
+    def sieve(self, number):
+        """ Sieve of Eratosthenes """
+        number += 1
+        self._bools = [True] * number
+        self._sums = [0]
+        for i in range(2, number):
+            if self._bools[i]:
+                for j in range(i*i, number, i):
+                    self._bools[j] = False
+                self._sums.append(self._sums[-1] + i)
             else:
-                if summation > 0:
-                    break
-                i = i/2
-        return CacheEntry(summation, index)
+                self._sums.append(self._sums[-1])
+
+        while len(self._sums) < len(self._bools):
+            self._sums.append(self._sums[-1])
+
+
+def benchmark(limit):
+    """ Measures efficacy of implementation"""
+    start = time.time()
+    primes = Primes(limit)
+    print(primes.summation(limit))
+    end = time.time()
+    print("Time elapsed: " + str(end - start))
+
+
+def diff_with_original():
+    """ Used to debuf new implementation """
+    primes = Primes(10)
+    # primes_orig = PrimesOriginal(10)
+    res = 0
+    res_orig = 0
+    limit = 5
+    while res == res_orig:
+        res = primes.summation(limit)
+        # res_orig = primes_orig.summation(limit)
+        limit += 1
+
+    print(limit)
+    print(res)
+    print(res_orig)
+
 
 def main():
     """ main """
-    primes = Primes(10)
-    adder = PrimeAdder(primes)
-    number = 5
-    print(adder.summation(number))
-    number = 10
-    print(adder.summation(number))
+    limit = 1000
+    benchmark(100000)
+    primes = Primes(limit)
+    print(primes.summation(5))
+    print(primes.summation(5))
+    print(primes.summation(10))
 
 
 if __name__ == "__main__":
     main()
-
-
