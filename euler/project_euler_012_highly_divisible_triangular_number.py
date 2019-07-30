@@ -26,15 +26,109 @@ We can see that 28 is the first triangle number to have over five divisors.
 What is the value of the first triangle number to have over N divisors?
 """
 
+import time
+import math
+
+
+def num_factors_old(number):
+    """ Returns the number of factors of given number"""
+    factors = 1
+
+    if number == 1:
+        return factors
+
+    for i in range(2, int(number/2) + 1):
+        if (number % i) == 0:
+            factors += 1
+
+    factors += 1
+    return factors
+
+
+def num_factors(number):
+    """ Return the number of factors of given number"""
+    prime_factors = {}
+
+    if (number % 2) == 0:
+        prime_factors[2] = 0
+        while (number % 2) == 0:
+            number /= 2
+            prime_factors[2] += 1
+
+    for i in range(3, int(math.sqrt(number)) + 1, 2):
+        if (number % i) == 0:
+            prime_factors[i] = 0
+            while (number % i) == 0:
+                number /= i
+                prime_factors[i] += 1
+
+    # if it is still more than 2 it is a prime itself
+    if number > 2:
+        if prime_factors.get(int(number)):
+            prime_factors[int(number)] += 1
+        else:
+            prime_factors[int(number)] = 1
+
+    # print(prime_factors)
+
+    # https://en.wikipedia.org/wiki/Rule_of_product
+    factor_num = 1
+    for key in prime_factors:
+        factor_num *= prime_factors[key] + 1
+
+    return int(factor_num)
+
+
+def triangular_at(index):
+    """ Return the Nth triangular number
+        Args:
+        index   Defines N
+    """
+    return int(index*(index + 1) / 2)
 
 def highly_divisible_triangular_number(number):
-    pass
+    index = 1
+    if number >= 480:
+        index = 12375
+    if number >= 576:
+        index = 14399
+    if number >= 648:
+        index = 21735
+    if number >= 768:
+        index = 41040
+    while num_factors(triangular_at(index)) <= number:
+        # print(str(triag_number) + ": " + str(num_factors(triag_number)))
+        index += 1
+        if index > 41040:
+            print("Past index for " + str(number))
+            return 0
+    print("Index at " + str(number) + ": " + str(index))
+    return triangular_at(index)
 
 
 def main():
     """ main """
-    number = 28
-    print(highly_divisible_triangular_number(number))
+    number = 300
+    highly_divisible_triangular_number(number)
+    print(num_factors(triangular_at(5984)))
+    return 0
+
+    while True:
+        start = time.time()
+        if not highly_divisible_triangular_number(number):
+            break
+        end = time.time()
+        print("Duration: " + str(end - start))
+        number -= 1
+    # number = 5
+    # print(highly_divisible_triangular_number(number))
+    # print(num_factors_old(60))
+    # print(num_factors(60))
+
+    # tests = int(input().strip())
+    # for test in range(tests):
+    #     number = int(input().strip())
+    #     print(highly_divisible_triangular_number(number))
 
 
 if __name__ == "__main__":
