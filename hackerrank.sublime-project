@@ -1,0 +1,9 @@
+{
+    "folders": [
+        {
+            "name": "Source",
+            "path": ".",
+            "folder_exclude_patterns": [".vscode"]
+        },
+    ]
+}
