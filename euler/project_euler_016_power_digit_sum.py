@@ -9,13 +9,23 @@ What is the sum of the digits of the number 2^N?
 """
 
 
-def power_digit_sum():
+def power_digit_sum(n):
     """ Solves the problem"""
+    if n == 0:
+        return 1
+    sumation = 0
+    power = 2 << (n - 1)
+    for digit in str(power):
+        sumation += int(digit)
+    return sumation
 
 
 def main():
     """ main """
-    print(power_digit_sum())
+    tests = int(input())
+    for _ in range(tests):
+        n = int(input())
+        print(power_digit_sum(n))
 
 
 if __name__ == "__main__":
