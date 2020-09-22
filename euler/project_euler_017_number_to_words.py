@@ -16,7 +16,7 @@ One Hundred Twelve
 Given a number, you have to write it in words.
 
 """
-    
+
 NUM_TO_TEXT = {
     0: "Zero",
     1: "One",
